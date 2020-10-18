@@ -7,6 +7,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+# from selenium import webdriver from selenium.webdriver.chrome.options import Options
+# chrome_options = Options()
+# #chrome_options.add_argument("--disable-extensions")
+# #chrome_options.add_argument("--disable-gpu")
+# #chrome_options.add_argument("--no-sandbox") # linux only
+# chrome_options.add_argument("--headless")
+# # chrome_options.headless = True # also works
+
 
 def print_logo():
     """Prints inital load ASCII"""
@@ -17,6 +25,7 @@ def user_details():
     email = input('Enter your email address: ')
     password = getpass.getpass('Enter your password: ')
     postcode = input('Enter your postcode: ')
+    print("\nFetching your pizza menu...\n")
     return dict(email=email, password=password, postcode=postcode)
 
 def initialize_chrome_webdriver():
@@ -62,12 +71,17 @@ def login_and_navigate_to_menu(driver, user_details):
     email_input = driver.find_element_by_xpath("//input[@name='password']")
     email_input.send_keys(user_details["password"], Keys.RETURN)
 
-    wait_for_page_load(id_string="welcome-page", page_name="welcome")
+    # NOTE: Might need an IF condition to see if are navigated to welcome or not.
+    # If we do, then run this code
+    # wait_for_page_load(id_string="welcome-page", page_name="welcome")
 
-    # Navigate from welcome to menu
-    driver.find_element_by_id("menu-selector").click()
+    # # Navigate from welcome to menu
+    # driver.find_element_by_id("menu-selector").click()
 
-def get_pizzas(driver):
+def get_pizza_menu(driver):
+    """Constructs a list containing dicts of the pizza information"""
+    wait_for_page_load(id_string="Speciality Pizzas", page_name="menu")
+
     normal_menu = driver.find_element(By.ID, 'Speciality Pizzas')
     vegan_menu = driver.find_element(By.ID, 'Vegan Friendly Pizzas')
 
@@ -76,23 +90,31 @@ def get_pizzas(driver):
 
     all_pizzas = normal_pizzas + vegan_pizzas
 
-    pizza_list = []
+    pizza_menu = []
     for index, pizza in enumerate(all_pizzas):
 
         item = pizza.find_element(By.CLASS_NAME, 'h6')
         item_name = item.get_attribute('innerHTML').replace('&amp;','&')
         item_to_basket = item.find_element_by_xpath("//button[text()='Add To Basket']")
 
-        pizza_list.append({"index": index, "item": item, "name": item_name, "buy": item_to_basket})
+        pizza_menu.append({"index": index, "item": item, "name": item_name, "buy": item_to_basket})
 
-        print("choose a pizza number")
-        print(f"Pizza number {index}:\n{item_name}\n")
+    return pizza_menu
 
-    def buy_pizza(number):
-        pizza_list[number]["buy"].click()
-    
-    buy_pizza(0)
+def order_pizza(driver):
+    """TODO"""
+    pizza_menu = get_pizza_menu(driver)
 
+    print("Choose a pizza number")
+    for pizza in pizza_menu:
+        index = pizza["index"]
+        item_name = pizza["name"]
+        print(f"Pizza number {index}: {item_name}")
+
+    order_no = input('Enter your order number: ')
+
+    # Click on add to basket for the chosen pizza
+    pizza_menu[int(order_no)]["buy"].click()
 
 def stop_webdriver():
     """Close webdriver"""
@@ -107,3 +129,5 @@ if __name__ == "__main__":
     navigate_from_postcode_to_menu(driver, user_details)
     navigate_from_menu_to_login(driver)
     login_and_navigate_to_menu(driver, user_details)
+    order_pizza(driver)
+    # Checkout & Confirm
