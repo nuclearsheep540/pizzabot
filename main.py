@@ -8,7 +8,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-
 def print_logo():
     """Prints inital load ASCII"""
     print("#### PIZZABOT ####")
@@ -67,6 +66,33 @@ def login_and_navigate_to_menu(driver, user_details):
 
     # Navigate from welcome to menu
     driver.find_element_by_id("menu-selector").click()
+
+def get_pizzas(driver):
+    normal_menu = driver.find_element(By.ID, 'Speciality Pizzas')
+    vegan_menu = driver.find_element(By.ID, 'Vegan Friendly Pizzas')
+
+    normal_pizzas = normal_menu.find_elements(By.TAG_NAME, 'article')
+    vegan_pizzas = vegan_menu.find_elements(By.TAG_NAME, 'article')
+
+    all_pizzas = normal_pizzas + vegan_pizzas
+
+    pizza_list = []
+    for index, pizza in enumerate(all_pizzas):
+
+        item = pizza.find_element(By.CLASS_NAME, 'h6')
+        item_name = item.get_attribute('innerHTML').replace('&amp;','&')
+        item_to_basket = item.find_element_by_xpath("//button[text()='Add To Basket']")
+
+        pizza_list.append({"index": index, "item": item, "name": item_name, "buy": item_to_basket})
+
+        print("choose a pizza number")
+        print(f"Pizza number {index}:\n{item_name}\n")
+
+    def buy_pizza(number):
+        pizza_list[number]["buy"].click()
+    
+    buy_pizza(0)
+
 
 def stop_webdriver():
     """Close webdriver"""
