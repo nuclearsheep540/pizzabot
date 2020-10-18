@@ -7,6 +7,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+# NOTE: To run headless
+# TODO: Add arg parser to manage this
 # from selenium import webdriver from selenium.webdriver.chrome.options import Options
 # chrome_options = Options()
 # #chrome_options.add_argument("--disable-extensions")
@@ -50,32 +52,26 @@ def navigate_from_postcode_to_menu(driver, user_details):
     postcode_search.send_keys(user_details["postcode"], Keys.RETURN)
 
 def navigate_from_menu_to_login(driver):
-    """Navigate from menu to login"""
+    """Closes pop-up and clicks on Login"""
     wait_for_page_load(id_string="arrival-overlay-container", page_name="menu")
 
-    # Close pop-up
     driver.find_element_by_class_name("arrival-red").click()
-
-    # Click login
     driver.find_element_by_class_name("account-link").click()
 
 def login_and_navigate_to_menu(driver, user_details):
     """Log in with email and password, then navigate to menu"""
     wait_for_page_load(id_string="loginPanel", page_name="login")
-    
-    # Input email
+
     email_input = driver.find_element_by_xpath("//input[@name='email']")
     email_input.send_keys(user_details["email"])
 
-    # Input password
     email_input = driver.find_element_by_xpath("//input[@name='password']")
     email_input.send_keys(user_details["password"], Keys.RETURN)
 
     # NOTE: Might need an IF condition to see if are navigated to welcome or not.
-    # If we do, then run this code
+    #       If we are navigated to the welcome pacge, then run this code
     # wait_for_page_load(id_string="welcome-page", page_name="welcome")
-
-    # # Navigate from welcome to menu
+    
     # driver.find_element_by_id("menu-selector").click()
 
 def get_pizza_menu(driver):
@@ -102,7 +98,7 @@ def get_pizza_menu(driver):
     return pizza_menu
 
 def order_pizza(driver):
-    """TODO"""
+    """Handles user choosing a pizza, and adding it to basket"""
     pizza_menu = get_pizza_menu(driver)
 
     print("Choose a pizza number")
