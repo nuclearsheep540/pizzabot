@@ -26,7 +26,6 @@ def user_details():
     """Get user details required to enter the website"""
     email = input('Enter your email address: ')
     password = getpass.getpass('Enter your password: ')
-    postcode = input('Enter your postcode: ')
     print("\nFetching your pizza menu...\n")
 
     return dict(email=email, password=password, postcode=postcode)
@@ -165,5 +164,6 @@ if __name__ == "__main__":
     login_and_navigate_to_menu(driver, user_details)
     select_pizza(driver)
     navigate_to_basket(driver)
-    navigate_to_checkout(driver)
+    ordered_pizza_info = navigate_to_checkout(driver)
+    checkout_place_order(driver, ordered_pizza_info)
     # Checkout & Confirm
